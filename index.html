@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Réglages D7500</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="apple-mobile-web-app-title" content="Réglages D7500" />
+<meta name="theme-color" content="#111318" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23111318'/%3E%3Ccircle cx='50' cy='55' r='24' fill='none' stroke='%23e8621f' stroke-width='6'/%3E%3Crect x='30' y='28' width='40' height='10' rx='3' fill='%23e8621f'/%3E%3C/svg%3E" />
+<style>
+  :root {
+    --bg: #111318;
+    --surface: #1b1e26;
+    --surface-2: #232733;
+    --text: #f0f1f4;
+    --text-secondary: #9aa0ac;
+    --accent: #e8621f;
+    --warning: #e0a030;
+    --radius: 14px;
+    --border: #2a2e39;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    padding: max(20px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
+    min-height: 100vh;
+  }
+  h1 {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 20px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  select, input[type="number"] {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239aa0ac' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .checkbox-row input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+  }
+  .hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .output {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 20px 16px;
+    margin-bottom: 12px;
+  }
+  .output-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    text-align: center;
+  }
+  .output-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+  }
+  .output-value {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .output-note {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+  }
+  .tip, .warning {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .tip {
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+  .warning {
+    color: var(--warning);
+    background: rgba(224,160,48,0.08);
+    border: 1px solid rgba(224,160,48,0.25);
+  }
+  .icon { flex-shrink: 0; margin-top: 1px; }
+  #ev-fields, #light-fallback { display: none; }
+  .validate-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    cursor: pointer;
+  }
+  .validate-btn:active { opacity: 0.85; }
+  .output.pending { opacity: 0.4; }
+</style>
+</head>
+<body>
+
+<h1>Réglages Nikon D7500</h1>
+<p class="subtitle">Scène, objectif, effet — et EV mesuré si tu l'as</p>
+
+<div class="card">
+  <div class="grid">
+    <div>
+      <label for="lens">Objectif</label>
+      <select id="lens">
+        <option value="kit1855">18-55mm f/3.5-5.6</option>
+        <option value="kit18140">18-140mm f/3.5-5.6</option>
+        <option value="tele70300">70-300mm f/4.5-6.3</option>
+        <option value="prime35">35mm f/1.8</option>
+        <option value="prime50">50mm f/1.8</option>
+        <option value="macro40">40mm macro f/2.8</option>
+        <option value="autre">Autre / manuel</option>
+      </select>
+    </div>
+    <div id="manual-wrap" style="display:none;">
+      <label for="manual-max">Ouverture max</label>
+      <input type="number" id="manual-max" value="4" step="0.1" min="1" max="22" />
+    </div>
+    <div id="focal-wrap" style="display:none;">
+      <label for="focal">Focale (<span id="focal-out">35mm</span>)</label>
+      <input type="range" id="focal" min="18" max="55" step="1" value="35" />
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="grid">
+    <div>
+      <label for="scene">Scène</label>
+      <select id="scene">
+        <option value="portrait">Portrait</option>
+        <option value="paysage">Paysage</option>
+        <option value="sport">Sport / action</option>
+        <option value="nuit">Nuit / astro</option>
+        <option value="macro">Macro</option>
+        <option value="animaux">Animaux / faune</option>
+      </select>
+    </div>
+    <div>
+      <label for="effect">Effet recherché</label>
+      <select id="effect">
+        <option value="bokeh">Flou d'arrière-plan</option>
+        <option value="net">Tout net (grande profondeur)</option>
+        <option value="figer">Figer le mouvement</option>
+        <option value="file">Filé / flou artistique</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <label class="checkbox-row">
+    <input type="checkbox" id="use-ev" />
+    <span>J'ai mesuré la lumière (EV réel)</span>
+  </label>
+
+  <div id="ev-fields" class="grid" style="margin-top:10px;">
+    <div>
+      <label for="ev-value">EV mesuré (à ISO 100)</label>
+      <input type="number" id="ev-value" value="12" step="0.1" />
+    </div>
+    <div>
+      <label for="ev-iso">ISO de la mesure</label>
+      <input type="number" id="ev-iso" value="100" step="1" min="25" />
+    </div>
+  </div>
+  <p class="hint" id="ev-hint" style="display:none;">Si ton appli donne l'EV à un autre ISO, indique-le, il sera converti.</p>
+
+  <div id="light-fallback">
+    <label for="light">Lumière (estimation)</label>
+    <select id="light">
+      <option value="plein_soleil">Plein soleil</option>
+      <option value="nuageux">Nuageux / ombre</option>
+      <option value="interieur_lumineux">Intérieur lumineux</option>
+      <option value="interieur_faible">Intérieur faible / soir</option>
+      <option value="nuit">Nuit noire</option>
+    </select>
+  </div>
+</div>
+
+<button class="validate-btn" id="validate-btn">Valider les réglages</button>
+
+<div class="output pending" id="output-card">
+  <div class="output-grid">
+    <div><div class="output-label">Mode</div><div class="output-value" id="out-mode">A</div></div>
+    <div><div class="output-label">Ouverture</div><div class="output-value" id="out-aperture">f/5.6</div></div>
+    <div><div class="output-label">Vitesse</div><div class="output-value" id="out-shutter">1/125</div></div>
+    <div><div class="output-label">ISO</div><div class="output-value" id="out-iso">200</div></div>
+  </div>
+  <div class="output-note" id="out-note"></div>
+</div>
+
+<div class="tip" id="tip-box">
+  <span class="icon">💡</span>
+  <span id="tip-text"></span>
+</div>
+<div class="warning" id="warning-box" style="display:none;">
+  <span class="icon">⚠️</span>
+  <span id="warning-text"></span>
+</div>
+
+<script>
+const lensData = {
+  kit1855: { type: 'zoom', minF: 18, maxF: 55, maxApAtMin: 3.5, maxApAtMax: 5.6 },
+  kit18140: { type: 'zoom', minF: 18, maxF: 140, maxApAtMin: 3.5, maxApAtMax: 5.6 },
+  tele70300: { type: 'zoom', minF: 70, maxF: 300, maxApAtMin: 4.5, maxApAtMax: 6.3 },
+  prime35: { type: 'prime', focal: 35, maxAp: 1.8 },
+  prime50: { type: 'prime', focal: 50, maxAp: 1.8 },
+  macro40: { type: 'prime', focal: 40, maxAp: 2.8 },
+  autre: { type: 'manual' }
+};
+
+const shutterSteps = [1,2,4,8,15,30,60,125,250,500,1000,2000,4000,8000];
+
+function niceShutter(seconds) {
+  if (seconds >= 1) {
+    if (seconds >= 60) return Math.round(seconds/6)/10 + ' min';
+    return (Math.round(seconds*10)/10) + ' sec';
+  }
+  const denom = 1/seconds;
+  let closest = shutterSteps[0];
+  for (const s of shutterSteps) {
+    if (Math.abs(s - denom) < Math.abs(closest - denom)) closest = s;
+  }
+  return '1/' + closest;
+}
+
+function getLensMaxAperture() {
+  const lensKey = document.getElementById('lens').value;
+  const lens = lensData[lensKey];
+  if (lens.type === 'prime') return lens.maxAp;
+  if (lens.type === 'manual') return parseFloat(document.getElementById('manual-max').value) || 4;
+  const focal = parseFloat(document.getElementById('focal').value);
+  const t = (focal - lens.minF) / (lens.maxF - lens.minF);
+  return Math.round((lens.maxApAtMin + t * (lens.maxApAtMax - lens.maxApAtMin)) * 10) / 10;
+}
+
+function updateLensUI() {
+  const lensKey = document.getElementById('lens').value;
+  const lens = lensData[lensKey];
+  document.getElementById('manual-wrap').style.display = lens.type === 'manual' ? 'block' : 'none';
+  document.getElementById('focal-wrap').style.display = lens.type === 'zoom' ? 'block' : 'none';
+  if (lens.type === 'zoom') {
+    const focalInput = document.getElementById('focal');
+    focalInput.min = lens.minF;
+    focalInput.max = lens.maxF;
+    focalInput.value = lens.minF;
+    document.getElementById('focal-out').textContent = lens.minF + 'mm';
+  }
+}
+
+function toggleEvMode() {
+  const useEv = document.getElementById('use-ev').checked;
+  document.getElementById('ev-fields').style.display = useEv ? 'grid' : 'none';
+  document.getElementById('ev-hint').style.display = useEv ? 'block' : 'none';
+  document.getElementById('light-fallback').style.display = useEv ? 'none' : 'block';
+}
+
+function compute() {
+  const scene = document.getElementById('scene').value;
+  const effect = document.getElementById('effect').value;
+  const lensMax = getLensMaxAperture();
+  const useEv = document.getElementById('use-ev').checked;
+
+  let mode = 'A';
+  let aperture = 5.6;
+  let shutterDisplay = '1/125';
+  let iso = 200;
+  let tip = '';
+  let warning = '';
+
+  const aperturePreset = { bokeh: 1.8, net: 8, figer: 5.6, file: 11 };
+  let wanted = aperturePreset[effect];
+  if (wanted < lensMax) {
+    warning = "Ton objectif ouvre au mieux à f/" + lensMax + " ici, il ne peut pas descendre à f/" + wanted + ". Réglage ajusté à son maximum.";
+    wanted = lensMax;
+  }
+  aperture = wanted;
+
+  const shutterFloor = { portrait: 125, paysage: 60, sport: 1000, nuit: 0, macro: 200, animaux: 1000 };
+  let baseShutterDenom = shutterFloor[scene];
+  if (effect === 'figer') baseShutterDenom = Math.max(baseShutterDenom, 1000);
+
+  if (useEv) {
+    const evMeasured = parseFloat(document.getElementById('ev-value').value) || 12;
+    const evIso = parseFloat(document.getElementById('ev-iso').value) || 100;
+    const ev100 = evMeasured - Math.log2(evIso / 100);
+
+    if (effect === 'file') {
+      mode = 'S';
+      const seconds = 4;
+      iso = 100;
+      shutterDisplay = seconds + ' sec';
+      tip = "Trépied recommandé sauf filé volontaire à main levée, en suivant le sujet pendant la pose.";
+    } else {
+      const isoLadder = [100,200,400,800,1600,3200,6400,12800];
+      let chosen = null;
+      const targetDenom = (scene === 'sport' || scene === 'animaux' || effect === 'figer') ? 1000 : baseShutterDenom;
+      for (const isoTry of isoLadder) {
+        const evAtIso = ev100 + Math.log2(isoTry / 100);
+        const seconds = (aperture * aperture) / Math.pow(2, evAtIso);
+        const denom = seconds > 0 ? 1/seconds : 999999;
+        if (denom >= targetDenom || isoTry === isoLadder[isoLadder.length-1]) {
+          chosen = { iso: isoTry, seconds };
+          break;
+        }
+      }
+      iso = chosen.iso;
+      shutterDisplay = niceShutter(chosen.seconds);
+      mode = (scene === 'sport' || scene === 'animaux' || effect === 'figer') ? 'S' : 'A';
+      tip = "Vitesse calculée à partir de l'EV mesuré pour une exposition correcte à cette ouverture et cet ISO.";
+      if (iso >= 6400) tip += " ISO élevé : bruit visible probable, envisage d'ouvrir davantage si l'objectif le permet.";
+    }
+  } else {
+    const light = document.getElementById('light').value;
+    const lightISObase = { plein_soleil: 100, nuageux: 400, interieur_lumineux: 800, interieur_faible: 1600, nuit: 3200 };
+    iso = lightISObase[light];
+
+    if (scene === 'nuit' && effect !== 'file') {
+      mode = 'M';
+      aperture = Math.max(lensMax, 2.8);
+      shutterDisplay = '15 sec';
+      iso = 3200;
+      tip = "Trépied obligatoire. Déclencheur à distance ou retardateur 2s. Mise au point manuelle sur une étoile brillante en Live View x10.";
+    } else if (effect === 'file') {
+      mode = 'S';
+      shutterDisplay = '4 sec';
+      iso = Math.min(iso, 200);
+      tip = "Trépied recommandé sauf filé volontaire à main levée, en suivant le sujet pendant la pose.";
+    } else if (scene === 'sport' || scene === 'animaux' || effect === 'figer') {
+      mode = 'S';
+      shutterDisplay = '1/' + baseShutterDenom;
+      iso = Math.max(iso, light === 'plein_soleil' ? 200 : 800);
+      tip = "Active la rafale (CH) et l'AF-C avec suivi de zone dynamique pour ne pas perdre le sujet.";
+    } else {
+      mode = 'A';
+      shutterDisplay = '1/' + baseShutterDenom;
+      tip = scene === 'portrait'
+        ? "En A, tu ne règles que l'ouverture. Vise l'oeil du sujet, décentre le collimateur AF plutôt que de recadrer après."
+        : scene === 'paysage'
+        ? "Trépied utile en lumière faible. Hyperfocale conseillée pour la netteté du premier plan à l'infini."
+        : scene === 'macro'
+        ? "À cette ouverture la profondeur de champ reste très fine en macro. Stabilise-toi, la moindre vibration se voit."
+        : "Ajuste l'ISO si la vitesse affichée descend sous 1/60 à main levée.";
+    }
+  }
+
+  document.getElementById('out-mode').textContent = mode;
+  document.getElementById('out-aperture').textContent = 'f/' + aperture;
+  document.getElementById('out-shutter').textContent = shutterDisplay;
+  document.getElementById('out-iso').textContent = iso;
+  document.getElementById('out-note').textContent = useEv ? "Calculé à partir de l'EV mesuré, pas d'un préréglage" : '';
+  document.getElementById('tip-text').textContent = tip;
+
+  const warnEl = document.getElementById('warning-box');
+  if (warning) {
+    warnEl.style.display = 'flex';
+    document.getElementById('warning-text').textContent = warning;
+  } else {
+    warnEl.style.display = 'none';
+  }
+}
+
+function markPending() {
+  document.getElementById('output-card').classList.add('pending');
+}
+
+document.getElementById('focal').addEventListener('input', function() {
+  document.getElementById('focal-out').textContent = this.value + 'mm';
+  markPending();
+});
+document.getElementById('manual-max').addEventListener('input', markPending);
+document.getElementById('lens').addEventListener('change', function() {
+  updateLensUI();
+  markPending();
+});
+document.getElementById('use-ev').addEventListener('change', function() {
+  toggleEvMode();
+  markPending();
+});
+document.getElementById('ev-value').addEventListener('input', markPending);
+document.getElementById('ev-iso').addEventListener('input', markPending);
+['scene','light','effect'].forEach(id => document.getElementById(id).addEventListener('change', markPending));
+
+document.getElementById('validate-btn').addEventListener('click', function() {
+  compute();
+  document.getElementById('output-card').classList.remove('pending');
+  document.getElementById('output-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+
+updateLensUI();
+toggleEvMode();
+</script>
+</body>
+</html>
