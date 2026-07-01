@@ -195,7 +195,8 @@
       <input type="number" id="manual-max" value="4" step="0.1" min="1" max="22" />
     </div>
     <div id="focal-wrap" style="display:none;">
-      <label for="focal">Focale (<span id="focal-out">35mm</span>)</label>
+      <label for="focal-num">Focale utilisée (mm)</label>
+      <input type="number" id="focal-num" value="35" step="1" style="margin-bottom:8px;" />
       <input type="range" id="focal" min="18" max="55" step="1" value="35" />
     </div>
   </div>
@@ -320,10 +321,13 @@ function updateLensUI() {
   document.getElementById('focal-wrap').style.display = lens.type === 'zoom' ? 'block' : 'none';
   if (lens.type === 'zoom') {
     const focalInput = document.getElementById('focal');
+    const focalNum = document.getElementById('focal-num');
     focalInput.min = lens.minF;
     focalInput.max = lens.maxF;
     focalInput.value = lens.minF;
-    document.getElementById('focal-out').textContent = lens.minF + 'mm';
+    focalNum.min = lens.minF;
+    focalNum.max = lens.maxF;
+    focalNum.value = lens.minF;
   }
 }
 
@@ -444,7 +448,26 @@ function markPending() {
 }
 
 document.getElementById('focal').addEventListener('input', function() {
-  document.getElementById('focal-out').textContent = this.value + 'mm';
+  document.getElementById('focal-num').value = this.value;
+  markPending();
+});
+document.getElementById('focal-num').addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  if (!isNaN(v)) {
+    document.getElementById('focal').value = v; // le range se borne tout seul
+  }
+  markPending();
+});
+document.getElementById('focal-num').addEventListener('change', function() {
+  const focalInput = document.getElementById('focal');
+  const min = parseFloat(focalInput.min);
+  const max = parseFloat(focalInput.max);
+  let v = parseFloat(this.value);
+  if (isNaN(v)) v = min;
+  if (v < min) v = min;
+  if (v > max) v = max;
+  this.value = v;
+  focalInput.value = v;
   markPending();
 });
 document.getElementById('manual-max').addEventListener('input', markPending);
