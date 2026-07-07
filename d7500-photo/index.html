@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>D7500 — Guide photo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15171a; --panel:#1d2024; --panel-2:#23272c;
+    --line:#3a3f46; --line-dim:#2a2e33; --text:#e7e5e0;
+    --text-dim2:#8b8e93; --amber:#e0a04a; --cyan:#5fd0d9;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  body{padding-bottom:40px;}
+  header{padding:18px 16px 10px;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); margin:0 0 4px;}
+  h1{margin:0; font-size:20px; font-weight:700; letter-spacing:-.01em;}
+
+  .search-wrap{position:relative; margin-top:12px;}
+  #search{width:100%; padding:12px 40px 12px 14px; font-size:15px; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:'Inter',sans-serif;}
+  #search:focus{outline:none; border-color:var(--amber);}
+  #search::placeholder{color:var(--text-dim2);}
+  .search-icon{position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-dim2); font-size:15px;}
+  #search-results{margin-top:8px; display:none; flex-direction:column; gap:1px; background:var(--line-dim); border-radius:10px; overflow:hidden; border:1px solid var(--line-dim);}
+  #search-results.show{display:flex;}
+  .sr-item{background:var(--panel-2); padding:10px 14px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .sr-item:active{background:var(--panel);}
+  .sr-name{font-weight:600; font-size:14px;}
+  .sr-view{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--amber); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap;}
+  .sr-empty{background:var(--panel-2); padding:14px; color:var(--text-dim2); font-size:14px; text-align:center;}
+
+  .tabs{display:flex; gap:6px; padding:14px 16px 0; overflow-x:auto;}
+  .tab{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.04em; padding:9px 14px; border-radius:8px; border:1px solid var(--line); background:var(--panel-2); color:var(--text-dim2); white-space:nowrap; cursor:pointer; text-transform:uppercase;}
+  .tab.active{background:var(--amber); color:#1a1408; border-color:var(--amber); font-weight:600;}
+
+  .stage{position:relative; margin:14px 16px 0; border:1px solid var(--line-dim); border-radius:14px; background:#fff; overflow:hidden;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .stage-inner{position:relative; width:100%; background:#eee;}
+  .stage-inner img{display:block; width:100%; height:100%; object-fit:contain;}
+  .stage-inner svg{position:absolute; top:0; left:0; width:100%; height:100%;}
+  .view[data-view="front"] .stage-inner{aspect-ratio:1024/776;}
+  .view[data-view="back"] .stage-inner{aspect-ratio:1000/730;}
+  .view[data-view="top"] .stage-inner{aspect-ratio:1000/1000;}
+
+  .leader-line{stroke:var(--amber); stroke-width:2; opacity:.85;}
+  .leader-dot{fill:var(--amber);}
+  .num-badge{cursor:pointer;}
+  .num-badge circle{fill:#1d2024; stroke:var(--amber); stroke-width:2.5;}
+  .num-badge text{font-family:'IBM Plex Mono',monospace; font-size:20px; font-weight:700; fill:var(--amber); text-anchor:middle; dominant-baseline:central;}
+  .num-badge.active circle{fill:var(--amber);}
+  .num-badge.active text{fill:#1a1408;}
+
+  #detail{margin:14px 16px 0; padding:16px; border-radius:14px; background:var(--panel-2); border:1px solid var(--line); min-height:78px;}
+  #detail .dt-empty{color:var(--text-dim2); font-size:14px; line-height:1.5;}
+  #detail .dt-num{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:6px; background:var(--amber); color:#1a1408; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:12px; margin-right:8px;}
+  #detail .dt-name{font-size:16px; font-weight:700; margin:0 0 8px; display:flex; align-items:center;}
+  #detail .dt-desc{font-size:14.5px; line-height:1.55; color:var(--text);}
+  #detail .dt-tip{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); font-size:13px; color:var(--cyan); line-height:1.5;}
+  #detail .dt-tip b{color:var(--cyan);}
+
+  .list{margin:18px 16px 0;}
+  .list h2{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim2); margin:0 0 8px;}
+  .list-item{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line-dim); cursor:pointer;}
+  .list-item:last-child{border-bottom:none;}
+  .list-item:active{background:var(--panel-2);}
+  .list-item .li-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber); width:20px; text-align:center; flex-shrink:0;}
+  .list-item .li-name{font-size:14.5px; font-weight:500;}
+
+  footer{padding:22px 16px 0; text-align:center; color:var(--text-dim2); font-size:11.5px; font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Nikon D7500 · Photos réelles</p>
+  <h1>Touche un repère sur la photo</h1>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="Cherche un bouton (ex: retardateur, ISO, flash...)" autocomplete="off">
+    <span class="search-icon">⌕</span>
+  </div>
+  <div id="search-results"></div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-view="front">Face avant</div>
+  <div class="tab" data-view="back">Face arrière</div>
+  <div class="tab" data-view="top">Dessus</div>
+</div>
+
+<div class="stage">
+  <div class="view active" data-view="front">
+    <div class="stage-inner">
+      <img src="front.jpg" alt="Nikon D7500 face avant">
+      <svg viewBox="0 0 1024 776" data-svg="front"></svg>
+    </div>
+  </div>
+  <div class="view" data-view="back">
+    <div class="stage-inner">
+      <img src="back.jpg" alt="Nikon D7500 face arrière">
+      <svg viewBox="0 0 1000 730" data-svg="back"></svg>
+    </div>
+  </div>
+  <div class="view" data-view="top">
+    <div class="stage-inner">
+      <img src="top.jpg" alt="Nikon D7500 dessus">
+      <svg viewBox="0 0 1000 1000" data-svg="top"></svg>
+    </div>
+  </div>
+</div>
+
+<div id="detail"><p class="dt-empty">Touche un repère sur la photo, ou cherche en haut.</p></div>
+
+<div class="list" id="list-container"></div>
+
+<footer>D7500 · guide photo · usage perso</footer>
+
+<script>
+// coordonnées en pixels sur l'image source de chaque vue
+const DATA = [
+  // ===== FRONT (1024×776) =====
+  {id:"bkt-button", view:"front", tx:175, ty:170, lx:80, ly:100, label:"Touche BKT (bracketing)", desc:"Maintiens appuyé + molette principale : nombre de vues du bracketing. + molette secondaire : écart entre les vues.", tip:null},
+  {id:"self-timer-lamp", view:"front", tx:345, ty:195, lx:345, ly:75, label:"Voyant du retardateur", desc:"Clignote lentement puis vite pendant le compte à rebours, juste avant la prise de vue.", tip:null},
+  {id:"flash-button", view:"front", tx:790, ty:195, lx:900, ly:90, label:"Bouton flash intégré", desc:"Relève le flash pop-up. Maintiens appuyé + molette principale pour la correction d'exposition au flash.", tip:null},
+  {id:"sub-dial-front", view:"front", tx:180, ty:255, lx:60, ly:255, label:"Molette secondaire (avant)", desc:"Sous l'index : règle l'ouverture en mode A/M, intervient dans plusieurs réglages combinés.", tip:null},
+  {id:"fn-button", view:"front", tx:300, ty:405, lx:110, ly:420, label:"Touche Fn1", desc:"Personnalisable dans le menu personnalisé f1 (par défaut souvent liée au format d'image).", tip:null},
+  {id:"lens-mount", view:"front", tx:660, ty:330, lx:960, ly:260, label:"Monture d'objectif (baïonnette F)", desc:"Aligne le repère blanc de l'objectif sur celui du boîtier, tourne jusqu'au clic.", tip:null},
+  {id:"lens-release", view:"front", tx:855, ty:440, lx:970, ly:500, label:"Déverrouillage d'objectif", desc:"Appuie et tourne l'objectif pour le retirer.", tip:null},
+  {id:"pv-button", view:"front", tx:405, ty:660, lx:170, ly:715, label:"Touche Fn2 (Pv)", desc:"Par défaut, aperçu de profondeur de champ : ferme temporairement le diaphragme pour visualiser la zone de netteté dans le viseur. Personnalisable.", tip:null},
+  {id:"af-mode-button", view:"front", tx:490, ty:630, lx:470, ly:745, label:"Touche mode AF", desc:"Maintiens appuyé + molette principale : change entre AF-S, AF-C, AF-A. + molette secondaire : change la zone AF.", tip:"Position approximative sur cette photo précise — dis-moi si elle tombe à côté du vrai bouton."},
+  {id:"focus-selector", view:"front", tx:560, ty:660, lx:660, ly:745, label:"Sélecteur de mise au point", desc:"Bascule AF (autofocus) / M (manuel).", tip:"Position approximative sur cette photo précise — dis-moi si elle tombe à côté du vrai bouton."},
+
+  // ===== BACK (1000×730) =====
+  {id:"playback-button", view:"back", tx:100, ty:195, lx:60, ly:100, label:"Touche lecture", desc:"Affiche la dernière photo/vidéo prise.", tip:null},
+  {id:"delete-button", view:"back", tx:210, ty:195, lx:260, ly:100, label:"Touche suppression (corbeille)", desc:"En visionnage, supprime l'image affichée (confirmation demandée).", tip:null},
+  {id:"menu-button", view:"back", tx:100, ty:320, lx:40, ly:320, label:"Touche MENU", desc:"Ouvre le menu complet du boîtier (prise de vue, personnalisé, configuration, retouche...).", tip:null},
+  {id:"wb-button", view:"back", tx:100, ty:365, lx:40, ly:400, label:"Touche WB (balance des blancs)", desc:"Maintiens appuyé + molette principale : change le réglage de balance des blancs.", tip:null},
+  {id:"protect-button", view:"back", tx:100, ty:410, lx:40, ly:480, label:"Touche protection / aide (?/⌧)", desc:"En visionnage : protège l'image contre la suppression accidentelle. Ailleurs : affiche une aide contextuelle.", tip:null},
+  {id:"qual-button", view:"back", tx:100, ty:455, lx:40, ly:560, label:"Touche QUAL (qualité image)", desc:"Maintiens appuyé + molette principale : change la qualité/format d'image (JPEG fin/normal/basique, RAW...).", tip:null},
+  {id:"zoom-in", view:"back", tx:100, ty:500, lx:200, ly:660, label:"Zoom + (loupe)", desc:"En visionnage : zoome sur l'image affichée pour vérifier la netteté.", tip:null},
+  {id:"zoom-out", view:"back", tx:100, ty:545, lx:330, ly:685, label:"Zoom - / vignettes", desc:"En visionnage : dézoome, ou affiche plusieurs vignettes à la fois.", tip:null},
+  {id:"info-button", view:"back", tx:100, ty:635, lx:130, ly:715, label:"Touche info", desc:"Affiche/masque l'écran d'informations récapitulant tous les réglages actifs.", tip:null},
+  {id:"eyepiece", view:"back", tx:490, ty:175, lx:400, ly:60, label:"Viseur / œilleton", desc:"Cadrage optique. L'œilleton se retire pour nettoyage ou remplacement.", tip:null},
+  {id:"diopter", view:"back", tx:565, ty:150, lx:640, ly:50, label:"Réglage dioptrique", desc:"Petite molette crantée à droite du viseur : ajuste la netteté du viseur à ta vue.", tip:null},
+  {id:"ael-afl", view:"back", tx:735, ty:150, lx:830, ly:60, label:"Touche AE-L / AF-L", desc:"Verrouille l'exposition et/ou la mise au point. Reconfigurable (ex. back-button focus) dans le menu personnalisé f.", tip:null},
+  {id:"main-dial-back", view:"back", tx:895, ty:200, lx:975, ly:130, label:"Molette principale (arrière)", desc:"Sous le pouce : vitesse d'obturation en mode S/M, navigue dans plusieurs menus.", tip:null},
+  {id:"multiselector", view:"back", tx:770, ty:390, lx:960, ly:370, label:"Sélecteur multidirectionnel + OK", desc:"Pavé 8 directions : déplace le collimateur AF, navigue dans les menus. Centre (OK) : valide un réglage.", tip:null},
+  {id:"i-button", view:"back", tx:790, ty:575, lx:940, ly:600, label:"Touche i", desc:"Ouvre le menu i : accès rapide aux réglages fréquents sans passer par le menu complet.", tip:null},
+  {id:"lv-switch", view:"back", tx:800, ty:635, lx:960, ly:700, label:"Levier Live View + bouton", desc:"Le levier bascule photo/vidéo ; le bouton central active/quitte le Live View.", tip:null},
+  {id:"monitor", view:"back", tx:350, ty:430, lx:350, ly:590, label:"Écran tactile inclinable", desc:"3,2 pouces, tactile. Live View, visionnage, navigation menu, cadrage à bout de bras.", tip:null},
+
+  // ===== TOP (1000×1000) =====
+  {id:"mode-dial", view:"top", tx:150, ty:640, lx:60, ly:780, label:"Molette de mode", desc:"Appuie sur le déverrouillage central et tourne pour choisir P / S / A / M, Auto, Effets ou modes Scène.", tip:null},
+  {id:"release-mode-dial", view:"top", tx:230, ty:590, lx:340, ly:780, label:"Molette d'entraînement (RETARDATEUR ici)", desc:"Molette concentrique sous la molette de mode. Appuie sur son bouton de déverrouillage et tourne sur le pictogramme horloge pour le RETARDATEUR.", tip:"<b>C'est ici, pas un bouton dédié.</b> Position approximative sur cette photo précise — dis-moi si elle tombe à côté."},
+  {id:"hotshoe", view:"top", tx:500, ty:150, lx:500, ly:40, label:"Griffe flash (accessoire)", desc:"Fixation pour un flash externe ou un émetteur radio.", tip:null},
+  {id:"rec-button", view:"top", tx:790, ty:370, lx:650, ly:250, label:"Enregistrement vidéo", desc:"Bouton rouge : démarre / arrête l'enregistrement d'une vidéo.", tip:"Position approximative — dis-moi si elle tombe à côté."},
+  {id:"shutter", view:"top", tx:870, ty:430, lx:960, ly:300, label:"Déclencheur", desc:"Appui mi-course : mesure et autofocus. Appui complet : déclenche. Lance aussi le compte à rebours du retardateur une fois la molette réglée.", tip:null},
+  {id:"power-switch", view:"top", tx:870, ty:430, lx:960, ly:380, label:"Interrupteur (autour du déclencheur)", desc:"Collier autour du bouton déclencheur : tourne pour allumer / éteindre le boîtier.", tip:null},
+  {id:"iso-button", view:"top", tx:815, ty:505, lx:960, ly:460, label:"Touche ISO", desc:"Maintiens appuyé et tourne la molette principale pour changer la sensibilité ISO ; molette secondaire pour l'ISO auto.", tip:"Position approximative — dis-moi si elle tombe à côté."},
+  {id:"expcomp-button", view:"top", tx:900, ty:460, lx:960, ly:540, label:"Correction d'exposition (+/-)", desc:"Maintiens appuyé et tourne la molette principale pour assombrir/éclaircir l'exposition en mode P/S/A.", tip:"Position approximative — dis-moi si elle tombe à côté."},
+  {id:"control-panel", view:"top", tx:850, ty:650, lx:960, ly:780, label:"Écran de contrôle (dessus)", desc:"Affiche vitesse, ouverture, ISO, mode d'entraînement, batterie et nombre de vues restantes.", tip:null},
+];
+
+const el = (sel, root=document) => root.querySelector(sel);
+const els = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+const viewNames = {front:"avant", back:"arrière", top:"dessus"};
+
+function buildOverlays(){
+  ["front","back","top"].forEach(view=>{
+    const svg = document.querySelector(`svg[data-svg="${view}"]`);
+    const items = DATA.filter(d=>d.view===view);
+    items.forEach((item, i)=>{
+      const num = i+1;
+      const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("class","leader-line");
+      line.setAttribute("x1", item.tx); line.setAttribute("y1", item.ty);
+      line.setAttribute("x2", item.lx); line.setAttribute("y2", item.ly);
+      g.appendChild(line);
+
+      const dot = document.createElementNS("http://www.w3.org/2000/svg","circle");
+      dot.setAttribute("class","leader-dot");
+      dot.setAttribute("cx", item.tx); dot.setAttribute("cy", item.ty); dot.setAttribute("r", 5);
+      g.appendChild(dot);
+
+      const badge = document.createElementNS("http://www.w3.org/2000/svg","g");
+      badge.setAttribute("class","num-badge");
+      badge.setAttribute("data-id", item.id);
+      badge.innerHTML = `<circle cx="${item.lx}" cy="${item.ly}" r="22"></circle><text x="${item.lx}" y="${item.ly}">${num}</text>`;
+      badge.addEventListener("click", ()=> selectItem(item.id, false));
+      g.appendChild(badge);
+
+      svg.appendChild(g);
+    });
+  });
+}
+
+function setActiveView(view, scrollToStage){
+  els(".tab").forEach(t=> t.classList.toggle("active", t.dataset.view===view));
+  els(".view").forEach(v=> v.classList.toggle("active", v.dataset.view===view));
+  renderList(view);
+  if(scrollToStage) el(".stage").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function renderList(view){
+  const container = el("#list-container");
+  const items = DATA.filter(d=>d.view===view);
+  const name = {front:"Face avant", back:"Face arrière", top:"Dessus"}[view];
+  container.innerHTML = `<h2>${name} — liste complète</h2>` + items.map((item,i)=>`
+    <div class="list-item" data-id="${item.id}">
+      <span class="li-num">${i+1}</span>
+      <span class="li-name">${item.label}</span>
+    </div>`).join("");
+  els(".list-item", container).forEach(li=>{
+    li.addEventListener("click", ()=> selectItem(li.dataset.id, true));
+  });
+}
+
+function showDetail(item, idx){
+  el("#detail").innerHTML = `
+    <p class="dt-name"><span class="dt-num">${idx}</span>${item.label}</p>
+    <p class="dt-desc">${item.desc}</p>
+    ${item.tip ? `<p class="dt-tip">${item.tip}</p>` : ""}
+  `;
+}
+
+function selectItem(id, switchView){
+  const item = DATA.find(d=>d.id===id);
+  if(!item) return;
+  if(switchView) setActiveView(item.view, false);
+  const idx = DATA.filter(d=>d.view===item.view).findIndex(d=>d.id===id) + 1;
+  els(".num-badge").forEach(b=> b.classList.toggle("active", b.dataset.id===id));
+  showDetail(item, idx);
+  el("#search-results").classList.remove("show");
+  el("#search").value = "";
+  el("#detail").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function doSearch(q){
+  q = q.trim().toLowerCase();
+  const resBox = el("#search-results");
+  if(!q){ resBox.classList.remove("show"); resBox.innerHTML=""; return; }
+  const matches = DATA.filter(d =>
+    d.label.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q) || (d.tip && d.tip.toLowerCase().includes(q))
+  ).slice(0,8);
+  if(matches.length===0){
+    resBox.innerHTML = `<div class="sr-empty">Aucune touche trouvée pour « ${q} »</div>`;
+  } else {
+    resBox.innerHTML = matches.map(m=>`
+      <div class="sr-item" data-id="${m.id}">
+        <span class="sr-name">${m.label}</span>
+        <span class="sr-view">${viewNames[m.view]}</span>
+      </div>`).join("");
+    els(".sr-item", resBox).forEach(item=> item.addEventListener("click", ()=> selectItem(item.dataset.id, true)));
+  }
+  resBox.classList.add("show");
+}
+
+el("#search").addEventListener("input", e=> doSearch(e.target.value));
+els(".tab").forEach(tab=> tab.addEventListener("click", ()=> setActiveView(tab.dataset.view, false)));
+
+buildOverlays();
+setActiveView("front", false);
+</script>
+</body>
+</html>
