@@ -188,10 +188,26 @@ let photoMode = false;
 let photosLoaded = false;
 const photoMats = {top:null, front:null, back:null};
 
+const FACE_ASPECT = {front: bodyW/bodyH, back: bodyW/bodyH, top: bodyW/bodyD};
+
+function fitTextureCover(tex, key){
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  const imgAspect = tex.image.width / tex.image.height;
+  const faceAspect = FACE_ASPECT[key];
+  if(imgAspect > faceAspect){
+    tex.repeat.set(faceAspect/imgAspect, 1);
+    tex.offset.set((1-faceAspect/imgAspect)/2, 0);
+  } else {
+    tex.repeat.set(1, imgAspect/faceAspect);
+    tex.offset.set(0, (1-imgAspect/faceAspect)/2);
+  }
+  tex.needsUpdate = true;
+}
+
 function loadPhotoMaterial(key, url, onDone){
   texLoader.load(
     url,
-    (tex)=>{ photoMats[key] = new THREE.MeshBasicMaterial({map:tex}); if(onDone) onDone(true); },
+    (tex)=>{ fitTextureCover(tex, key); photoMats[key] = new THREE.MeshBasicMaterial({map:tex}); if(onDone) onDone(true); },
     undefined,
     (err)=>{ console.error("Échec chargement photo:", url, err); if(onDone) onDone(false); }
   );
