@@ -467,9 +467,9 @@ el("#photo-toggle").addEventListener("click", ()=>{
         }
       }
     };
-    loadPhotoMaterial("front", "https://upload.wikimedia.org/wikipedia/commons/3/3b/Nikon_D7500_(retouched).jpg", ok=>done("front",ok));
-    loadPhotoMaterial("back", "https://upload.wikimedia.org/wikipedia/commons/d/da/Nikon_D7500_screen_-_by_ato.jpg", ok=>done("back",ok));
-    loadPhotoMaterial("top", "https://upload.wikimedia.org/wikipedia/commons/0/05/Nikon_D7500_with_AF-S_DX_18-140mm_VR_top_out_-_by_ato.jpg", ok=>done("top",ok));
+    loadPhotoMaterial("front", "front.jpg", ok=>done("front",ok));
+    loadPhotoMaterial("back", "back.jpg", ok=>done("back",ok));
+    loadPhotoMaterial("top", "top.jpg", ok=>done("top",ok));
   } else {
     applyPhotoMode(!photoMode);
   }
