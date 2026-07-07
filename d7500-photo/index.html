@@ -71,9 +71,22 @@
   .list-item .li-name{font-size:14.5px; font-weight:500;}
 
   footer{padding:22px 16px 0; text-align:center; color:var(--text-dim2); font-size:11.5px; font-family:'IBM Plex Mono',monospace;}
+
+  #back-to-top{
+    position:fixed; bottom:22px; right:18px; z-index:60;
+    width:48px; height:48px; border-radius:50%;
+    background:var(--amber); color:#1a1408; border:none;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,.4);
+    opacity:0; pointer-events:none; transition:opacity .2s, transform .2s;
+  }
+  #back-to-top.show{opacity:1; pointer-events:auto;}
+  #back-to-top:active{transform:scale(0.92);}
 </style>
 </head>
 <body>
+
+<button id="back-to-top" aria-label="Remonter à la photo">↑</button>
 
 <header>
   <p class="eyebrow">Nikon D7500 · Photos réelles</p>
@@ -124,22 +137,21 @@ const DATA = [
   // ===== FRONT (1024×776) =====
   {id:"bkt-button", view:"front", tx:175, ty:170, lx:80, ly:100, label:"Touche BKT (bracketing)", desc:"Maintiens appuyé + molette principale : nombre de vues du bracketing. + molette secondaire : écart entre les vues.", tip:null},
   {id:"self-timer-lamp", view:"front", tx:345, ty:195, lx:345, ly:75, label:"Voyant du retardateur", desc:"Clignote lentement puis vite pendant le compte à rebours, juste avant la prise de vue.", tip:null},
-  {id:"flash-button", view:"front", tx:790, ty:195, lx:900, ly:90, label:"Bouton flash intégré", desc:"Relève le flash pop-up. Maintiens appuyé + molette principale pour la correction d'exposition au flash.", tip:null},
+  {id:"flash-button", view:"front", tx:790, ty:195, lx:900, ly:90, label:"Bouton flash intégré", desc:"Relève le flash pop-up. Maintiens appuyé + molette principale pour la correction d'exposition au flash.", tip:"Utile en contre-jour pour déboucher les ombres sur un visage, même en plein jour (flash d'appoint). Portée limitée (quelques mètres), lumière assez dure — un flash externe orientable donne un résultat plus doux."},
   {id:"sub-dial-front", view:"front", tx:180, ty:255, lx:60, ly:255, label:"Molette secondaire (avant)", desc:"Sous l'index : règle l'ouverture en mode A/M, intervient dans plusieurs réglages combinés.", tip:null},
   {id:"fn-button", view:"front", tx:300, ty:405, lx:110, ly:420, label:"Touche Fn1", desc:"Personnalisable dans le menu personnalisé f1 (par défaut souvent liée au format d'image).", tip:null},
   {id:"lens-mount", view:"front", tx:660, ty:330, lx:960, ly:260, label:"Monture d'objectif (baïonnette F)", desc:"Aligne le repère blanc de l'objectif sur celui du boîtier, tourne jusqu'au clic.", tip:null},
   {id:"lens-release", view:"front", tx:855, ty:440, lx:970, ly:500, label:"Déverrouillage d'objectif", desc:"Appuie et tourne l'objectif pour le retirer.", tip:null},
   {id:"pv-button", view:"front", tx:405, ty:660, lx:170, ly:715, label:"Touche Fn2 (Pv)", desc:"Par défaut, aperçu de profondeur de champ : ferme temporairement le diaphragme pour visualiser la zone de netteté dans le viseur. Personnalisable.", tip:null},
-  {id:"af-mode-button", view:"front", tx:490, ty:630, lx:470, ly:745, label:"Touche mode AF", desc:"Maintiens appuyé + molette principale : change entre AF-S, AF-C, AF-A. + molette secondaire : change la zone AF.", tip:"Position approximative sur cette photo précise — dis-moi si elle tombe à côté du vrai bouton."},
-  {id:"focus-selector", view:"front", tx:560, ty:660, lx:660, ly:745, label:"Sélecteur de mise au point", desc:"Bascule AF (autofocus) / M (manuel).", tip:"Position approximative sur cette photo précise — dis-moi si elle tombe à côté du vrai bouton."},
+  {id:"af-mode-button", view:"front", tx:625, ty:650, lx:745, ly:695, label:"Touche + bague de mode AF", desc:"C'est une seule commande : un bouton central entouré d'une bague. Bouton (maintiens appuyé + molette principale) : change entre AF-S, AF-C, AF-A ; + molette secondaire : change la zone AF. Bague autour du bouton : bascule AF (autofocus) / M (manuel).", tip:"AF-S = sujet immobile (portrait posé, paysage) : le point se bloque une fois net. AF-C = sujet en mouvement (sport, animaux, enfants qui courent) : l'appareil refait la mise au point en continu tant que tu appuies à mi-course. Position approximative sur cette photo précise — dis-moi si elle tombe à côté du vrai bouton."},
 
   // ===== BACK (1000×730) =====
   {id:"playback-button", view:"back", tx:100, ty:195, lx:60, ly:100, label:"Touche lecture", desc:"Affiche la dernière photo/vidéo prise.", tip:null},
   {id:"delete-button", view:"back", tx:210, ty:195, lx:260, ly:100, label:"Touche suppression (corbeille)", desc:"En visionnage, supprime l'image affichée (confirmation demandée).", tip:null},
   {id:"menu-button", view:"back", tx:100, ty:320, lx:40, ly:320, label:"Touche MENU", desc:"Ouvre le menu complet du boîtier (prise de vue, personnalisé, configuration, retouche...).", tip:null},
-  {id:"wb-button", view:"back", tx:100, ty:365, lx:40, ly:400, label:"Touche WB (balance des blancs)", desc:"Maintiens appuyé + molette principale : change le réglage de balance des blancs.", tip:null},
+  {id:"wb-button", view:"back", tx:100, ty:365, lx:40, ly:400, label:"Touche WB (balance des blancs)", desc:"Maintiens appuyé + molette principale : change le réglage de balance des blancs.", tip:"Corrige la dominante de couleur selon la lumière (soleil, ombre, nuageux, ampoule, néon...). Réglage auto correct la plupart du temps, mais utile en intérieur sous lumière artificielle où l'auto vire souvent orange/jaune."},
   {id:"protect-button", view:"back", tx:100, ty:410, lx:40, ly:480, label:"Touche protection / aide (?/⌧)", desc:"En visionnage : protège l'image contre la suppression accidentelle. Ailleurs : affiche une aide contextuelle.", tip:null},
-  {id:"qual-button", view:"back", tx:100, ty:455, lx:40, ly:560, label:"Touche QUAL (qualité image)", desc:"Maintiens appuyé + molette principale : change la qualité/format d'image (JPEG fin/normal/basique, RAW...).", tip:null},
+  {id:"qual-button", view:"back", tx:100, ty:455, lx:40, ly:560, label:"Touche QUAL (qualité image)", desc:"Maintiens appuyé + molette principale : change la qualité/format d'image (JPEG fin/normal/basique, RAW...).", tip:"RAW = tout gardé, fichier lourd, retouche poussée possible mais nécessite un logiciel. JPEG fin = compressé mais léger, prêt à partager direct. Beaucoup de boîtiers permettent RAW+JPEG en même temps pour avoir les deux."},
   {id:"zoom-in", view:"back", tx:100, ty:500, lx:200, ly:660, label:"Zoom + (loupe)", desc:"En visionnage : zoome sur l'image affichée pour vérifier la netteté.", tip:null},
   {id:"zoom-out", view:"back", tx:100, ty:545, lx:330, ly:685, label:"Zoom - / vignettes", desc:"En visionnage : dézoome, ou affiche plusieurs vignettes à la fois.", tip:null},
   {id:"info-button", view:"back", tx:100, ty:635, lx:130, ly:715, label:"Touche info", desc:"Affiche/masque l'écran d'informations récapitulant tous les réglages actifs.", tip:null},
@@ -153,14 +165,14 @@ const DATA = [
   {id:"monitor", view:"back", tx:350, ty:430, lx:350, ly:590, label:"Écran tactile inclinable", desc:"3,2 pouces, tactile. Live View, visionnage, navigation menu, cadrage à bout de bras.", tip:null},
 
   // ===== TOP (1000×1000) =====
-  {id:"mode-dial", view:"top", tx:150, ty:640, lx:60, ly:780, label:"Molette de mode", desc:"Appuie sur le déverrouillage central et tourne pour choisir P / S / A / M, Auto, Effets ou modes Scène.", tip:null},
-  {id:"release-mode-dial", view:"top", tx:230, ty:590, lx:340, ly:780, label:"Molette d'entraînement (RETARDATEUR ici)", desc:"Molette concentrique sous la molette de mode. Appuie sur son bouton de déverrouillage et tourne sur le pictogramme horloge pour le RETARDATEUR.", tip:"<b>C'est ici, pas un bouton dédié.</b> Position approximative sur cette photo précise — dis-moi si elle tombe à côté."},
+  {id:"mode-dial", view:"top", tx:150, ty:640, lx:60, ly:780, label:"Molette de mode", desc:"Appuie sur le déverrouillage central et tourne pour choisir le mode d'exposition.", tip:"<b>P (Programme)</b> — l'appareil choisit vitesse + ouverture, tu gardes la main sur ISO/expo comp/flash. Bon par défaut si tu ne veux pas réfléchir.<br><br><b>S (Vitesse)</b> — tu choisis la vitesse d'obturation, l'appareil ajuste l'ouverture. Pour figer un mouvement rapide (vitesse rapide) ou au contraire filer l'eau/les lumières (vitesse lente).<br><br><b>A (Ouverture)</b> — tu choisis l'ouverture (f/), l'appareil ajuste la vitesse. Petit f/ = arrière-plan flou (portrait). Grand f/ = tout net (paysage). C'est le mode le plus utilisé en usage créatif courant.<br><br><b>M (Manuel)</b> — tu règles vitesse ET ouverture toi-même (ISO auto ou manuel). Indispensable en studio flash, ciel étoilé, ou toute situation où l'automatisme se trompe.<br><br><b>AUTO</b> — tout automatique, zéro contrôle créatif.<br><br><b>SCENE</b> — préréglages par type de sujet (portrait, sport, nuit...).<br><br><b>EFFECTS</b> — filtres créatifs appliqués direct à la prise de vue.<br><br><b>U1 / U2</b> — deux configurations complètes que tu as sauvegardées et rappelles instantanément (pratique pour retrouver d'un coup un réglage que t'utilises souvent)."},
+  {id:"release-mode-dial", view:"top", tx:230, ty:590, lx:340, ly:780, label:"Molette d'entraînement (retardateur + RAFALE ici)", desc:"Molette concentrique sous la molette de mode. Appuie sur son bouton de déverrouillage et tourne pour choisir le mode d'entraînement.", tip:"<b>Pas de bouton dédié pour la rafale</b> — c'est cette molette qu'il faut tourner : <b>CL</b> (continu lent, quelques images/seconde) ou <b>CH</b> (continu rapide, cadence max ~8 im/s). Une fois réglé sur CL ou CH, il suffit de garder le déclencheur appuyé pour mitrailler.<br>Autres positions : <b>S</b> (une image à la fois), <b>Q/QC</b> (silencieux), pictogramme horloge (<b>retardateur</b>), <b>MUP</b> (relevage de miroir avant déclenchement, utile en pose longue sur trépied). Position approximative sur cette photo précise — dis-moi si elle tombe à côté."},
   {id:"hotshoe", view:"top", tx:500, ty:150, lx:500, ly:40, label:"Griffe flash (accessoire)", desc:"Fixation pour un flash externe ou un émetteur radio.", tip:null},
   {id:"rec-button", view:"top", tx:790, ty:370, lx:650, ly:250, label:"Enregistrement vidéo", desc:"Bouton rouge : démarre / arrête l'enregistrement d'une vidéo.", tip:"Position approximative — dis-moi si elle tombe à côté."},
   {id:"shutter", view:"top", tx:870, ty:430, lx:960, ly:300, label:"Déclencheur", desc:"Appui mi-course : mesure et autofocus. Appui complet : déclenche. Lance aussi le compte à rebours du retardateur une fois la molette réglée.", tip:null},
   {id:"power-switch", view:"top", tx:870, ty:430, lx:960, ly:380, label:"Interrupteur (autour du déclencheur)", desc:"Collier autour du bouton déclencheur : tourne pour allumer / éteindre le boîtier.", tip:null},
-  {id:"iso-button", view:"top", tx:815, ty:505, lx:960, ly:460, label:"Touche ISO", desc:"Maintiens appuyé et tourne la molette principale pour changer la sensibilité ISO ; molette secondaire pour l'ISO auto.", tip:"Position approximative — dis-moi si elle tombe à côté."},
-  {id:"expcomp-button", view:"top", tx:900, ty:460, lx:960, ly:540, label:"Correction d'exposition (+/-)", desc:"Maintiens appuyé et tourne la molette principale pour assombrir/éclaircir l'exposition en mode P/S/A.", tip:"Position approximative — dis-moi si elle tombe à côté."},
+  {id:"iso-button", view:"top", tx:815, ty:505, lx:960, ly:460, label:"Touche ISO", desc:"Maintiens appuyé et tourne la molette principale pour changer la sensibilité ISO ; molette secondaire pour l'ISO auto.", tip:"Plus l'ISO est haut, plus l'image est lumineuse en basse lumière, mais plus elle devient granuleuse (bruit numérique). Règle de base : le plus bas possible tant que la vitesse reste suffisante pour éviter le flou de bougé. Position approximative — dis-moi si elle tombe à côté."},
+  {id:"expcomp-button", view:"top", tx:900, ty:460, lx:960, ly:540, label:"Correction d'exposition (+/-)", desc:"Maintiens appuyé et tourne la molette principale pour assombrir/éclaircir l'exposition en mode P/S/A.", tip:"Utile quand la mesure de l'appareil se trompe : sujet très clair (neige, ciel blanc) → pousse en + pour éviter qu'il ressorte gris. Sujet très sombre sur fond clair (contre-jour) → pousse en - pour ne pas cramer le fond. Sans effet en mode M. Position approximative — dis-moi si elle tombe à côté."},
   {id:"control-panel", view:"top", tx:850, ty:650, lx:960, ly:780, label:"Écran de contrôle (dessus)", desc:"Affiche vitesse, ouverture, ISO, mode d'entraînement, batterie et nombre de vues restantes.", tip:null},
 ];
 
@@ -263,6 +275,14 @@ function doSearch(q){
 
 el("#search").addEventListener("input", e=> doSearch(e.target.value));
 els(".tab").forEach(tab=> tab.addEventListener("click", ()=> setActiveView(tab.dataset.view, false)));
+
+el("#back-to-top").addEventListener("click", ()=>{
+  el(".stage").scrollIntoView({behavior:"smooth", block:"start"});
+});
+window.addEventListener("scroll", ()=>{
+  const stageBottom = el(".stage").getBoundingClientRect().bottom;
+  el("#back-to-top").classList.toggle("show", stageBottom < 0);
+});
 
 buildOverlays();
 setActiveView("front", false);
