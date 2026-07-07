@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>D7500 — 3D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15171a; --panel:#1d2024; --panel-2:#23272c;
+    --line:#3a3f46; --line-dim:#2a2e33; --text:#e7e5e0;
+    --text-dim2:#8b8e93; --amber:#e0a04a; --cyan:#5fd0d9;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;}
+  body{padding-bottom:40px;}
+
+  header{position:sticky; top:0; z-index:50; background:linear-gradient(180deg, var(--bg) 82%, transparent); padding:16px 16px 10px; border-bottom:1px solid var(--line-dim);}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--amber); margin:0 0 4px;}
+  h1{margin:0 0 12px; font-size:20px; font-weight:700; letter-spacing:-.01em;}
+
+  .search-wrap{position:relative;}
+  #search{width:100%; padding:12px 40px 12px 14px; font-size:15px; background:var(--panel-2); border:1px solid var(--line); border-radius:10px; color:var(--text); font-family:'Inter',sans-serif;}
+  #search:focus{outline:none; border-color:var(--amber);}
+  #search::placeholder{color:var(--text-dim2);}
+  .search-icon{position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-dim2); font-size:15px;}
+  #search-results{margin-top:8px; display:none; flex-direction:column; gap:1px; background:var(--line-dim); border-radius:10px; overflow:hidden; border:1px solid var(--line-dim);}
+  #search-results.show{display:flex;}
+  .sr-item{background:var(--panel-2); padding:10px 14px; cursor:pointer; display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .sr-item:active{background:var(--panel);}
+  .sr-name{font-weight:600; font-size:14px;}
+  .sr-view{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--amber); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap;}
+  .sr-empty{background:var(--panel-2); padding:14px; color:var(--text-dim2); font-size:14px; text-align:center;}
+
+  .viewbtns{display:flex; gap:6px; padding:14px 16px 0; overflow-x:auto;}
+  .vbtn{font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.04em; padding:9px 14px; border-radius:8px; border:1px solid var(--line); background:var(--panel-2); color:var(--text-dim2); white-space:nowrap; cursor:pointer; text-transform:uppercase;}
+  .vbtn.active{background:var(--amber); color:#1a1408; border-color:var(--amber); font-weight:600;}
+
+  .stage{position:relative; margin:14px 16px 0; border:1px solid var(--line-dim); border-radius:14px; background:radial-gradient(circle at 50% 35%, #262a2f, #17191c 75%); overflow:hidden; touch-action:none;}
+  #canvas-wrap{width:100%; aspect-ratio:1/1; max-height:64vh;}
+  canvas{display:block; width:100%; height:100%;}
+  .hint{position:absolute; bottom:10px; left:0; right:0; text-align:center; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-dim2); letter-spacing:.04em; pointer-events:none;}
+
+  #detail{margin:14px 16px 0; padding:16px; border-radius:14px; background:var(--panel-2); border:1px solid var(--line); min-height:78px;}
+  #detail .dt-empty{color:var(--text-dim2); font-size:14px; line-height:1.5;}
+  #detail .dt-num{display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:6px; background:var(--amber); color:#1a1408; font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:12px; margin-right:8px;}
+  #detail .dt-name{font-size:16px; font-weight:700; margin:0 0 8px; display:flex; align-items:center;}
+  #detail .dt-desc{font-size:14.5px; line-height:1.55; color:var(--text);}
+  #detail .dt-tip{margin-top:10px; padding-top:10px; border-top:1px solid var(--line); font-size:13px; color:var(--cyan); line-height:1.5;}
+  #detail .dt-tip b{color:var(--cyan);}
+
+  .list{margin:18px 16px 0;}
+  .list h2{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim2); margin:0 0 8px;}
+  .list-item{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--line-dim); cursor:pointer;}
+  .list-item:last-child{border-bottom:none;}
+  .list-item:active{background:var(--panel-2);}
+  .list-item .li-num{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--amber); width:20px; text-align:center; flex-shrink:0;}
+  .list-item .li-name{font-size:14.5px; font-weight:500;}
+
+  footer{padding:22px 16px 0; text-align:center; color:var(--text-dim2); font-size:11.5px; font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Nikon D7500 · Modèle 3D</p>
+  <h1>Fais tourner le boîtier, touche un point</h1>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="Cherche un bouton (ex: retardateur, ISO, flash...)" autocomplete="off">
+    <span class="search-icon">⌕</span>
+  </div>
+  <div id="search-results"></div>
+</header>
+
+<div class="viewbtns">
+  <div class="vbtn active" data-view="front">Face avant</div>
+  <div class="vbtn" data-view="back">Face arrière</div>
+  <div class="vbtn" data-view="top">Dessus</div>
+  <div class="vbtn" data-view="free">Libre</div>
+  <div class="vbtn" id="photo-toggle">Photos réelles</div>
+</div>
+
+<div class="stage">
+  <div id="canvas-wrap"></div>
+  <p class="hint">glisse pour tourner · pince ou molette pour zoomer</p>
+  <p class="hint" id="photo-credit" style="bottom:28px; display:none;">Photos : Wikimedia Commons, CC BY-SA — Jj98 (face avant) &amp; ato (dessus/arrière)</p>
+</div>
+
+<div id="detail"><p class="dt-empty">Touche un point sur le boîtier, ou cherche en haut.</p></div>
+
+<div class="list" id="list-container"></div>
+
+<footer>D7500 · guide de commandes · usage perso</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const DATA = [
+  // ===== TOP =====
+  {id:"mode-dial", view:"top", x:200, y:210, label:"Molette de mode", desc:"Appuie sur le déverrouillage central et tourne pour choisir P / S / A / M, Auto, Effets ou modes Scène.", tip:null},
+  {id:"release-mode-dial", view:"top", x:200, y:262, label:"Molette d'entraînement (RETARDATEUR ici)", desc:"Molette du dessous, concentrique avec la molette de mode. Appuie sur son bouton de déverrouillage (à côté) et tourne sur le pictogramme horloge pour le RETARDATEUR.", tip:"<b>C'est ici, pas un bouton dédié.</b> Aligne le repère sur l'icône horloge (self-timer). Les autres positions : S (vue par vue), CL/CH (continu lent/rapide), Q/QC (silencieux), MUP (relevage miroir)."},
+  {id:"hotshoe", view:"top", x:375, y:97, label:"Griffe flash (accessoire)", desc:"Fixation pour un flash externe ou un émetteur radio.", tip:null},
+  {id:"control-panel", view:"top", x:568, y:280, label:"Écran de contrôle (dessus)", desc:"Affiche vitesse, ouverture, ISO, mode d'entraînement, batterie et nombre de vues restantes.", tip:null},
+  {id:"shutter", view:"top", x:660, y:255, label:"Déclencheur", desc:"Appui mi-course : mesure et autofocus. Appui complet : déclenche. Lance aussi le compte à rebours du retardateur une fois la molette réglée.", tip:null},
+  {id:"power-switch", view:"top", x:660, y:255, label:"Interrupteur (autour du déclencheur)", desc:"Collier autour du bouton déclencheur : tourne pour allumer / éteindre le boîtier.", tip:null},
+  {id:"rec-button", view:"top", x:622, y:230, label:"Enregistrement vidéo", desc:"Bouton rouge : démarre / arrête l'enregistrement d'une vidéo.", tip:null},
+  {id:"iso-button", view:"top", x:600, y:255, label:"Touche ISO", desc:"Maintiens appuyé et tourne la molette principale pour changer la sensibilité ISO ; molette secondaire pour l'ISO auto.", tip:null},
+  {id:"expcomp-button", view:"top", x:578, y:235, label:"Correction d'exposition (+/-)", desc:"Maintiens appuyé et tourne la molette principale pour assombrir/éclaircir l'exposition en mode P/S/A.", tip:null},
+
+  // ===== FRONT =====
+  {id:"lens-release", view:"front", x:335, y:340, label:"Déverrouillage d'objectif", desc:"Appuie et tourne l'objectif pour le retirer.", tip:null},
+  {id:"lens-mount", view:"front", x:430, y:250, label:"Monture d'objectif (baïonnette F)", desc:"Aligne le repère blanc de l'objectif sur celui du boîtier, tourne jusqu'au clic.", tip:null},
+  {id:"af-mode-button", view:"front", x:430, y:365, label:"Touche mode AF", desc:"Maintiens appuyé + molette principale : change entre AF-S (ponctuel), AF-C (continu), AF-A. + molette secondaire : change la zone AF.", tip:null},
+  {id:"focus-selector", view:"front", x:485, y:378, label:"Sélecteur de mise au point", desc:"Bascule AF (autofocus) / M (manuel).", tip:null},
+  {id:"flash-button", view:"front", x:415, y:130, label:"Bouton flash intégré", desc:"Relève le flash pop-up. Maintiens appuyé + molette principale pour la correction d'exposition au flash.", tip:null},
+  {id:"bkt-button", view:"front", x:150, y:170, label:"Touche BKT (bracketing)", desc:"Maintiens appuyé + molette principale : nombre de vues du bracketing. + molette secondaire : écart entre les vues.", tip:null},
+  {id:"fn-button", view:"front", x:170, y:290, label:"Touche Fn (fonction)", desc:"Personnalisable dans le menu personnalisé f1.", tip:null},
+  {id:"pv-button", view:"front", x:170, y:325, label:"Touche Pv (aperçu profondeur de champ)", desc:"Ferme temporairement le diaphragme pour visualiser la zone de netteté dans le viseur.", tip:null},
+  {id:"self-timer-lamp", view:"front", x:135, y:185, label:"Voyant du retardateur", desc:"Clignote lentement puis vite pendant le compte à rebours, juste avant la prise de vue.", tip:null},
+  {id:"sub-dial-front", view:"front", x:140, y:245, label:"Molette secondaire (avant)", desc:"Sous l'index : règle l'ouverture en mode A/M, intervient dans plusieurs réglages combinés.", tip:null},
+
+  // ===== BACK =====
+  {id:"eyepiece", view:"back", x:270, y:105, label:"Viseur / œilleton", desc:"Cadrage optique. L'œilleton se retire pour nettoyage ou remplacement.", tip:null},
+  {id:"diopter", view:"back", x:305, y:95, label:"Réglage dioptrique", desc:"Petite molette crantée à droite du viseur : ajuste la netteté du viseur à ta vue.", tip:null},
+  {id:"ael-afl", view:"back", x:560, y:130, label:"Touche AE-L / AF-L", desc:"Verrouille l'exposition et/ou la mise au point. Reconfigurable (ex. back-button focus) dans le menu personnalisé f.", tip:null},
+  {id:"main-dial-back", view:"back", x:640, y:165, label:"Molette principale (arrière)", desc:"Sous le pouce : vitesse d'obturation en mode S/M, navigue dans plusieurs menus.", tip:null},
+  {id:"lv-switch", view:"back", x:600, y:145, label:"Levier Live View + bouton", desc:"Le levier bascule photo/vidéo ; le bouton central active/quitte le Live View.", tip:null},
+  {id:"multiselector", view:"back", x:560, y:235, label:"Sélecteur multidirectionnel", desc:"Pavé 8 directions : déplace le collimateur AF, navigue dans les menus.", tip:null},
+  {id:"ok-button", view:"back", x:560, y:235, label:"Touche OK", desc:"Centre du sélecteur multidirectionnel : valide un réglage ou recentre le point AF.", tip:null},
+  {id:"i-button", view:"back", x:560, y:305, label:"Touche i", desc:"Ouvre le menu i : accès rapide aux réglages fréquents sans passer par le menu complet.", tip:"C'est ici qu'on règle balance des blancs et qualité d'image sur le D7500 — pas de touche dédiée pour ça."},
+  {id:"zoom-in", view:"back", x:530, y:355, label:"Zoom + (loupe)", desc:"En visionnage : zoome sur l'image affichée pour vérifier la netteté.", tip:null},
+  {id:"zoom-out", view:"back", x:575, y:355, label:"Zoom - / vignettes", desc:"En visionnage : dézoome, ou affiche plusieurs vignettes.", tip:null},
+  {id:"playback-button", view:"back", x:225, y:110, label:"Touche lecture", desc:"Affiche la dernière photo/vidéo prise.", tip:null},
+  {id:"delete-button", view:"back", x:260, y:110, label:"Touche suppression (corbeille)", desc:"En visionnage, supprime l'image affichée.", tip:null},
+  {id:"menu-button", view:"back", x:210, y:200, label:"Touche MENU", desc:"Ouvre le menu complet du boîtier.", tip:null},
+  {id:"info-button", view:"back", x:400, y:400, label:"Touche info", desc:"Affiche/masque l'écran récapitulant tous les réglages actifs.", tip:null},
+  {id:"monitor", view:"back", x:355, y:255, label:"Écran tactile inclinable", desc:"3,2 pouces, tactile. Live View, visionnage, navigation menu, cadrage à bout de bras.", tip:null},
+  {id:"speaker", view:"back", x:200, y:100, label:"Haut-parleur", desc:"Restitue le son des vidéos en lecture.", tip:null},
+];
+
+// ---------- 3D position mapping ----------
+const PX = 120;
+const bodyW = 620/PX, bodyH = 300/PX, bodyD = 260/PX;
+const cX = 400, cY = 240, cYTop = 210;
+
+function get3D(item){
+  if(item.view==="front"){
+    return {x:(item.x-cX)/PX, y:-(item.y-cY)/PX, z: bodyD/2+0.1};
+  }
+  if(item.view==="back"){
+    return {x:-(item.x-cX)/PX, y:-(item.y-cY)/PX, z:-bodyD/2-0.1};
+  }
+  // top
+  return {x:(item.x-cX)/PX, y: bodyH/2+0.1, z:-(item.y-cYTop)/PX};
+}
+
+// ---------- Three.js setup ----------
+const wrap = document.getElementById("canvas-wrap");
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+wrap.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+const dl = new THREE.DirectionalLight(0xffffff, 0.9);
+dl.position.set(4,6,6);
+scene.add(dl);
+const dl2 = new THREE.DirectionalLight(0x5fd0d9, 0.25);
+dl2.position.set(-5,-2,-4);
+scene.add(dl2);
+
+const rig = new THREE.Group();
+scene.add(rig);
+
+// body — material array: [+x right, -x left, +y top, -y bottom, +z front, -z back]
+const bodyMat = new THREE.MeshStandardMaterial({color:0x2a2d31, roughness:0.75, metalness:0.15});
+const flatMaterials = () => [bodyMat, bodyMat, bodyMat, bodyMat, bodyMat, bodyMat];
+const bodyGeo = new THREE.BoxGeometry(bodyW, bodyH, bodyD);
+const bodyMesh = new THREE.Mesh(bodyGeo, flatMaterials());
+rig.add(bodyMesh);
+
+// real photo textures (Wikimedia Commons, CC BY-SA) — loaded on demand
+const texLoader = new THREE.TextureLoader();
+texLoader.setCrossOrigin("anonymous");
+const wikiFile = name => "https://commons.wikimedia.org/wiki/Special:FilePath/" + encodeURIComponent(name);
+let photoMode = false;
+let photosLoaded = false;
+const photoMats = {top:null, front:null, back:null};
+
+function loadPhotoMaterial(key, filename, onDone){
+  texLoader.load(
+    wikiFile(filename),
+    (tex)=>{ photoMats[key] = new THREE.MeshBasicMaterial({map:tex}); if(onDone) onDone(true); },
+    undefined,
+    (err)=>{ console.error("Échec chargement photo:", filename, err); if(onDone) onDone(false); }
+  );
+}
+
+function applyPhotoMode(on){
+  photoMode = on;
+  el("#photo-toggle").textContent = on ? "Schéma" : "Photos réelles";
+  el("#photo-credit").style.display = on ? "block" : "none";
+  const mats = bodyMesh.material;
+  if(on){
+    mats[2] = photoMats.top || bodyMat;
+    mats[4] = photoMats.front || bodyMat;
+    mats[5] = photoMats.back || bodyMat;
+  } else {
+    mats[2] = bodyMat; mats[4] = bodyMat; mats[5] = bodyMat;
+  }
+  bodyMesh.material = mats;
+  bodyMesh.material.forEach(m=> m.needsUpdate = true);
+}
+const edges = new THREE.LineSegments(new THREE.EdgesGeometry(bodyGeo), new THREE.LineBasicMaterial({color:0xe0a04a, transparent:true, opacity:0.55}));
+rig.add(edges);
+
+// grip (right side, +x = camera's own right, which sits on -x in our front-facing frame... place on -x per front-image left=grip)
+const gripGeo = new THREE.BoxGeometry(0.9, bodyH, bodyD*0.95);
+const gripMesh = new THREE.Mesh(gripGeo, bodyMat);
+gripMesh.position.set(-(bodyW/2+0.4), -0.05, 0.05);
+rig.add(gripMesh);
+const gripEdges = new THREE.LineSegments(new THREE.EdgesGeometry(gripGeo), new THREE.LineBasicMaterial({color:0xe0a04a, transparent:true, opacity:0.4}));
+gripEdges.position.copy(gripMesh.position);
+rig.add(gripEdges);
+
+// pentaprism
+const pentaGeo = new THREE.BoxGeometry(1.3, 0.55, 0.9);
+const pentaMesh = new THREE.Mesh(pentaGeo, bodyMat);
+pentaMesh.position.set(0.15, bodyH/2+0.28, 0.35);
+rig.add(pentaMesh);
+const pentaEdges = new THREE.LineSegments(new THREE.EdgesGeometry(pentaGeo), new THREE.LineBasicMaterial({color:0xe0a04a, transparent:true, opacity:0.4}));
+pentaEdges.position.copy(pentaMesh.position);
+rig.add(pentaEdges);
+
+// lens
+const lensMat = new THREE.MeshStandardMaterial({color:0x1c1e21, roughness:0.5, metalness:0.4});
+const lensGeo = new THREE.CylinderGeometry(0.95, 1.05, 1.1, 40);
+const lensMesh = new THREE.Mesh(lensGeo, lensMat);
+lensMesh.rotation.x = Math.PI/2;
+lensMesh.position.set(0.2, 0.05, bodyD/2+0.55);
+rig.add(lensMesh);
+const lensRingGeo = new THREE.TorusGeometry(0.95, 0.03, 8, 40);
+const lensRing = new THREE.Mesh(lensRingGeo, new THREE.MeshStandardMaterial({color:0xe0a04a, roughness:0.4, metalness:0.6}));
+lensRing.position.set(0.2, 0.05, bodyD/2+1.05);
+rig.add(lensRing);
+
+// hotspot sprites
+function makeSpriteTexture(num, active){
+  const size=128;
+  const cvs=document.createElement("canvas"); cvs.width=size; cvs.height=size;
+  const ctx=cvs.getContext("2d");
+  ctx.clearRect(0,0,size,size);
+  ctx.beginPath();
+  ctx.arc(size/2,size/2,size/2-8,0,Math.PI*2);
+  ctx.fillStyle = active? "#e0a04a" : "#1d2024";
+  ctx.fill();
+  ctx.lineWidth=6;
+  ctx.strokeStyle="#e0a04a";
+  ctx.stroke();
+  ctx.fillStyle = active? "#1a1408" : "#e0a04a";
+  ctx.font="bold 52px 'IBM Plex Mono', monospace";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText(num, size/2, size/2+4);
+  return new THREE.CanvasTexture(cvs);
+}
+
+const hotspotMeshes = {};
+DATA.forEach((item, idx)=>{
+  const num = DATA.filter(d=>d.view===item.view).findIndex(d=>d.id===item.id) + 1;
+  const pos = get3D(item);
+  const tex = makeSpriteTexture(num, false);
+  const mat = new THREE.SpriteMaterial({map:tex, depthTest:true, sizeAttenuation:true});
+  const sprite = new THREE.Sprite(mat);
+  sprite.scale.set(0.42,0.42,0.42);
+  sprite.position.set(pos.x,pos.y,pos.z);
+  sprite.userData = {id:item.id, num};
+  rig.add(sprite);
+  hotspotMeshes[item.id] = sprite;
+});
+
+function setActiveSprite(id){
+  Object.entries(hotspotMeshes).forEach(([key, sprite])=>{
+    const item = DATA.find(d=>d.id===key);
+    const num = sprite.userData.num;
+    sprite.material.map = makeSpriteTexture(num, key===id);
+    sprite.material.needsUpdate = true;
+  });
+}
+
+// ---------- camera orbit (manual, no OrbitControls) ----------
+let theta = 0.15, phi = Math.PI/2 - 0.12, radius = 8.6;
+let targetTheta = theta, targetPhi = phi;
+let dragging = false, lastX=0, lastY=0;
+
+function updateCameraPosition(){
+  camera.position.x = radius * Math.sin(phi) * Math.sin(theta);
+  camera.position.z = radius * Math.sin(phi) * Math.cos(theta);
+  camera.position.y = radius * Math.cos(phi);
+  camera.lookAt(0,0,0);
+}
+
+function resize(){
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resize);
+
+const dom = renderer.domElement;
+dom.addEventListener("pointerdown", e=>{ dragging=true; lastX=e.clientX; lastY=e.clientY; setFree(); });
+window.addEventListener("pointerup", ()=> dragging=false);
+window.addEventListener("pointermove", e=>{
+  if(!dragging) return;
+  const dx=e.clientX-lastX, dy=e.clientY-lastY;
+  lastX=e.clientX; lastY=e.clientY;
+  targetTheta -= dx*0.008;
+  targetPhi -= dy*0.008;
+  targetPhi = Math.max(0.18, Math.min(Math.PI-0.18, targetPhi));
+});
+dom.addEventListener("wheel", e=>{
+  e.preventDefault();
+  radius = Math.max(5, Math.min(14, radius + e.deltaY*0.01));
+}, {passive:false});
+
+// pinch zoom
+let pinchDist=null;
+dom.addEventListener("touchstart", e=>{
+  if(e.touches.length===2){
+    pinchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+  }
+}, {passive:true});
+dom.addEventListener("touchmove", e=>{
+  if(e.touches.length===2 && pinchDist!==null){
+    const d = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+    radius = Math.max(5, Math.min(14, radius - (d-pinchDist)*0.02));
+    pinchDist = d;
+  }
+}, {passive:true});
+dom.addEventListener("touchend", ()=> pinchDist=null);
+
+// click / tap on sprite
+const raycaster = new THREE.Raycaster();
+const pointerNDC = new THREE.Vector2();
+let downX=0, downY=0;
+dom.addEventListener("pointerdown", e=>{ downX=e.clientX; downY=e.clientY; });
+dom.addEventListener("pointerup", e=>{
+  if(Math.hypot(e.clientX-downX, e.clientY-downY) > 6) return; // was a drag, not a tap
+  const rect = dom.getBoundingClientRect();
+  pointerNDC.x = ((e.clientX-rect.left)/rect.width)*2-1;
+  pointerNDC.y = -((e.clientY-rect.top)/rect.height)*2+1;
+  raycaster.setFromCamera(pointerNDC, camera);
+  const sprites = Object.values(hotspotMeshes);
+  const hits = raycaster.intersectObjects(sprites);
+  if(hits.length>0){
+    selectItem(hits[0].object.userData.id, true);
+  }
+});
+
+function setFree(){
+  els(".vbtn").forEach(b=> b.classList.toggle("active", b.dataset.view==="free"));
+}
+
+const VIEW_ANGLES = {
+  front:{theta:0, phi:Math.PI/2-0.1},
+  back:{theta:Math.PI, phi:Math.PI/2-0.1},
+  top:{theta:0.4, phi:0.35},
+};
+
+function goToView(view){
+  els(".vbtn").forEach(b=> b.classList.toggle("active", b.dataset.view===view));
+  if(view==="free") return;
+  const a = VIEW_ANGLES[view];
+  let dt = a.theta - (targetTheta % (Math.PI*2));
+  while(dt > Math.PI) dt -= Math.PI*2;
+  while(dt < -Math.PI) dt += Math.PI*2;
+  targetTheta = targetTheta + dt;
+  targetPhi = a.phi;
+}
+
+function animate(){
+  requestAnimationFrame(animate);
+  theta += (targetTheta-theta)*0.12;
+  phi += (targetPhi-phi)*0.12;
+  updateCameraPosition();
+  renderer.render(scene, camera);
+}
+
+// ---------- UI wiring (search / list / detail) ----------
+const el = (sel, root=document) => root.querySelector(sel);
+const els = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+function renderList(){
+  const container = el("#list-container");
+  const views = [["front","Face avant"],["back","Face arrière"],["top","Dessus"]];
+  container.innerHTML = views.map(([view,name])=>{
+    const items = DATA.filter(d=>d.view===view);
+    return `<h2>${name}</h2>` + items.map((item,i)=>`
+      <div class="list-item" data-id="${item.id}">
+        <span class="li-num">${i+1}</span>
+        <span class="li-name">${item.label}</span>
+      </div>`).join("");
+  }).join("");
+  els(".list-item", container).forEach(li=>{
+    li.addEventListener("click", ()=> selectItem(li.dataset.id, true));
+  });
+}
+
+function showDetail(item){
+  const idx = DATA.filter(d=>d.view===item.view).findIndex(d=>d.id===item.id) + 1;
+  el("#detail").innerHTML = `
+    <p class="dt-name"><span class="dt-num">${idx}</span>${item.label}</p>
+    <p class="dt-desc">${item.desc}</p>
+    ${item.tip ? `<p class="dt-tip">${item.tip}</p>` : ""}
+  `;
+}
+
+function selectItem(id, moveCamera){
+  const item = DATA.find(d=>d.id===id);
+  if(!item) return;
+  setActiveSprite(id);
+  showDetail(item);
+  el("#search-results").classList.remove("show");
+  el("#search").value = "";
+  if(moveCamera) goToView(item.view);
+  el("#detail").scrollIntoView({behavior:"smooth", block:"center"});
+}
+
+function doSearch(q){
+  q = q.trim().toLowerCase();
+  const resBox = el("#search-results");
+  if(!q){ resBox.classList.remove("show"); resBox.innerHTML=""; return; }
+  const matches = DATA.filter(d =>
+    d.label.toLowerCase().includes(q) || d.desc.toLowerCase().includes(q) || (d.tip && d.tip.toLowerCase().includes(q))
+  ).slice(0,8);
+  if(matches.length===0){
+    resBox.innerHTML = `<div class="sr-empty">Aucune touche trouvée pour « ${q} »</div>`;
+  } else {
+    resBox.innerHTML = matches.map(m=>`
+      <div class="sr-item" data-id="${m.id}">
+        <span class="sr-name">${m.label}</span>
+        <span class="sr-view">${({top:"dessus",front:"avant",back:"arrière"})[m.view]}</span>
+      </div>`).join("");
+    els(".sr-item", resBox).forEach(item=> item.addEventListener("click", ()=> selectItem(item.dataset.id, true)));
+  }
+  resBox.classList.add("show");
+}
+
+el("#search").addEventListener("input", e=> doSearch(e.target.value));
+els(".vbtn[data-view]").forEach(b=> b.addEventListener("click", ()=> goToView(b.dataset.view)));
+
+el("#photo-toggle").addEventListener("click", ()=>{
+  if(!photosLoaded){
+    photosLoaded = true;
+    el("#photo-toggle").textContent = "Chargement…";
+    let remaining = 3, failed = [];
+    const names = {front:"avant", back:"arrière", top:"dessus"};
+    const done = (key, ok)=>{
+      remaining--;
+      if(!ok) failed.push(names[key]);
+      if(remaining<=0){
+        applyPhotoMode(true);
+        if(failed.length){
+          el("#photo-credit").textContent = "Échec de chargement : " + failed.join(", ") + " (réseau ou domaine bloqué) — les autres faces restent en schéma.";
+        }
+      }
+    };
+    loadPhotoMaterial("front", "Nikon D7500 (retouched).jpg", ok=>done("front",ok));
+    loadPhotoMaterial("back", "Nikon D7500 screen - by ato.jpg", ok=>done("back",ok));
+    loadPhotoMaterial("top", "Nikon D7500 with AF-S DX 18-140mm VR top out - by ato.jpg", ok=>done("top",ok));
+  } else {
+    applyPhotoMode(!photoMode);
+  }
+});
+
+renderList();
+resize();
+updateCameraPosition();
+animate();
+</script>
+</body>
+</html>
