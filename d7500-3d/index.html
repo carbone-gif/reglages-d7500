@@ -188,12 +188,12 @@ let photoMode = false;
 let photosLoaded = false;
 const photoMats = {top:null, front:null, back:null};
 
-function loadPhotoMaterial(key, filename, onDone){
+function loadPhotoMaterial(key, url, onDone){
   texLoader.load(
-    wikiFile(filename),
+    url,
     (tex)=>{ photoMats[key] = new THREE.MeshBasicMaterial({map:tex}); if(onDone) onDone(true); },
     undefined,
-    (err)=>{ console.error("Échec chargement photo:", filename, err); if(onDone) onDone(false); }
+    (err)=>{ console.error("Échec chargement photo:", url, err); if(onDone) onDone(false); }
   );
 }
 
@@ -467,9 +467,9 @@ el("#photo-toggle").addEventListener("click", ()=>{
         }
       }
     };
-    loadPhotoMaterial("front", "Nikon D7500 (retouched).jpg", ok=>done("front",ok));
-    loadPhotoMaterial("back", "Nikon D7500 screen - by ato.jpg", ok=>done("back",ok));
-    loadPhotoMaterial("top", "Nikon D7500 with AF-S DX 18-140mm VR top out - by ato.jpg", ok=>done("top",ok));
+    loadPhotoMaterial("front", "https://upload.wikimedia.org/wikipedia/commons/3/3b/Nikon_D7500_(retouched).jpg", ok=>done("front",ok));
+    loadPhotoMaterial("back", "https://upload.wikimedia.org/wikipedia/commons/d/da/Nikon_D7500_screen_-_by_ato.jpg", ok=>done("back",ok));
+    loadPhotoMaterial("top", "https://upload.wikimedia.org/wikipedia/commons/0/05/Nikon_D7500_with_AF-S_DX_18-140mm_VR_top_out_-_by_ato.jpg", ok=>done("top",ok));
   } else {
     applyPhotoMode(!photoMode);
   }
